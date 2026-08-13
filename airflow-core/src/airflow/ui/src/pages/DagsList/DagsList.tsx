@@ -18,6 +18,7 @@
  */
 import { Heading, HStack, Skeleton, VStack, type SelectValueChangeDetails, Box } from "@chakra-ui/react";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
@@ -36,13 +37,14 @@ import { TeamName } from "src/components/TeamName";
 import { TogglePause } from "src/components/TogglePause";
 import { TriggerDAGButton } from "src/components/TriggerDag/TriggerDAGButton";
 import { RouterLink } from "src/components/ui";
-import { DAGS_LIST_DISPLAY_KEY } from "src/constants/localStorage";
+import { advancedSearchKey, DAGS_LIST_DISPLAY_KEY } from "src/constants/localStorage";
 import { SearchParamsKeys, type SearchParamsKeysType } from "src/constants/searchParams";
 import { useAdvancedSearch } from "src/hooks/useAdvancedSearch";
 import { DagsLayout } from "src/layouts/DagsLayout";
 import { useConfig } from "src/queries/useConfig";
 import { useDagRunStateCounts } from "src/queries/useDagRunStateCounts";
 import { useDags } from "src/queries/useDags";
+import { useDagsSearchDefaults } from "src/queries/useDagsSearchDefaults";
 import { useDocumentTitle } from "src/utils";
 
 import { DagImportErrors } from "../Dashboard/Stats/DagImportErrors";
@@ -267,6 +269,26 @@ export const DagsList = () => {
   const { pagination, sorting } = tableURLState;
   const dagDisplayNamePattern = searchParams.get(NAME_PATTERN) ?? "";
   const advancedSearch = useAdvancedSearch("dags");
+
+  // Seed the advanced-search default from the "airflow-1" FX flag, but only once and only
+  // for users who haven't already made an explicit choice (stored in localStorage).
+  const hasStoredSearchPreferenceRef = useRef(
+    globalThis.localStorage.getItem(advancedSearchKey("dags")) !== null,
+  );
+  const appliedSearchDefaultRef = useRef(false);
+  const { data: searchDefaults } = useDagsSearchDefaults();
+
+  useEffect(() => {
+    if (
+      appliedSearchDefaultRef.current ||
+      hasStoredSearchPreferenceRef.current ||
+      searchDefaults?.advanced_search_default !== true
+    ) {
+      return;
+    }
+    appliedSearchDefaultRef.current = true;
+    advancedSearch.onToggle(true);
+  }, [advancedSearch, searchDefaults]);
 
   const [sort] = sorting;
   const orderBy = sort ? `${sort.desc ? "-" : ""}${sort.id}` : "dag_display_name";
