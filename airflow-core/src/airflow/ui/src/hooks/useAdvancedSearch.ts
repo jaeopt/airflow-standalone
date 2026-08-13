@@ -16,15 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useEffect, useRef } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import { advancedSearchKey } from "src/constants/localStorage";
+import { useDagsSearchDefaults } from "src/queries/useDagsSearchDefaults";
 
 // Toggle is intentionally NOT mirrored in the URL: shared links default to the
 // fast prefix-search behavior, and recipients can opt back into substring search
 // per searchbar if they want it.
 export const useAdvancedSearch = (key: string) => {
-  const [enabled, setEnabled] = useLocalStorage<boolean>(advancedSearchKey(key), false);
+  const storageKey = advancedSearchKey(key);
+  const [enabled, setEnabled] = useLocalStorage<boolean>(storageKey, false);
+  const { data: searchDefaults } = useDagsSearchDefaults();
+  const hasAppliedFlagDefault = useRef(false);
+
+  // Apply the airflow-1 experiment default once, and only for users who haven't
+  // already made an explicit choice (an existing localStorage entry wins).
+  useEffect(() => {
+    if (hasAppliedFlagDefault.current || searchDefaults === undefined) {
+      return;
+    }
+    hasAppliedFlagDefault.current = true;
+    if (globalThis.localStorage.getItem(storageKey) === null && searchDefaults.advanced_search_default) {
+      setEnabled(true);
+    }
+  }, [searchDefaults, setEnabled, storageKey]);
 
   return { enabled, onToggle: setEnabled };
 };
