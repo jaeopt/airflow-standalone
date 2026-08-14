@@ -32,6 +32,7 @@ import type { HTTPExceptionResponse } from "openapi/requests/types.gen";
 import { pruneLegacyDependencyKeys, pruneLegacyTagFilterKeys } from "src/constants/localStorage";
 import { ChakraCustomProvider } from "src/context/ChakraCustomProvider";
 import { ColorModeProvider } from "src/context/colorMode";
+import { ExperimentationProvider } from "src/context/experimentation";
 import { ShortcutRegistryProvider } from "src/context/keyboardShortcuts";
 import { TimezoneProvider } from "src/context/timezone";
 import { router } from "src/router";
@@ -99,6 +100,12 @@ axios.interceptors.response.use(
 pruneLegacyDependencyKeys();
 pruneLegacyTagFilterKeys();
 
+const AppRouter = () => (
+  <ShortcutRegistryProvider>
+    <RouterProvider router={router} />
+  </ShortcutRegistryProvider>
+);
+
 createRoot(document.querySelector("#root") as HTMLDivElement).render(
   <StrictMode>
     <I18nextProvider i18n={i18n}>
@@ -106,9 +113,9 @@ createRoot(document.querySelector("#root") as HTMLDivElement).render(
         <ChakraCustomProvider>
           <ColorModeProvider>
             <TimezoneProvider>
-              <ShortcutRegistryProvider>
-                <RouterProvider router={router} />
-              </ShortcutRegistryProvider>
+              <ExperimentationProvider>
+                <AppRouter />
+              </ExperimentationProvider>
             </TimezoneProvider>
           </ColorModeProvider>
         </ChakraCustomProvider>

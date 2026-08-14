@@ -52,10 +52,12 @@ import { DagTags } from "./DagTags";
 import { DagsFilters } from "./DagsFilters";
 import { Schedule } from "./Schedule";
 import { SortSelect } from "./SortSelect";
+import { useDagsListSearchExperiment } from "./useDagsListSearchExperiment";
 import { useTagFilter } from "./useTagFilter";
 
 type GetColumnsParams = {
   readonly multiTeam: boolean;
+  readonly onDagLinkClick: () => void;
 };
 
 type RunStateCountsContext = {
@@ -67,7 +69,7 @@ type RunStateCountsContext = {
 const createColumns = (
   translate: (key: string, options?: Record<string, unknown>) => string,
   runStateContext: RunStateCountsContext,
-  { multiTeam }: GetColumnsParams,
+  { multiTeam, onDagLinkClick }: GetColumnsParams,
 ): Array<ColumnDef<DAGWithLatestDagRunsResponse>> => [
   {
     accessorKey: "is_paused",
@@ -87,7 +89,7 @@ const createColumns = (
   {
     accessorKey: "dag_display_name",
     cell: ({ row: { original } }) => (
-      <RouterLink fontWeight="bold" to={`/dags/${original.dag_id}`}>
+      <RouterLink fontWeight="bold" onClick={onDagLinkClick} to={`/dags/${original.dag_id}`}>
         {original.dag_display_name}
       </RouterLink>
     ),
@@ -224,10 +226,14 @@ const {
   TIMETABLE_TYPE,
 }: SearchParamsKeysType = SearchParamsKeys;
 
-const createCardDef = (runStateContext: RunStateCountsContext): CardDef<DAGWithLatestDagRunsResponse> => ({
+const createCardDef = (
+  runStateContext: RunStateCountsContext,
+  onTitleClick: () => void,
+): CardDef<DAGWithLatestDagRunsResponse> => ({
   card: ({ row }) => (
     <DagCard
       dag={row}
+      onTitleClick={onTitleClick}
       runStateCounts={runStateContext.countsByDag[row.dag_id]}
       runStateCountsLoading={runStateContext.isLoading}
       stateCountLimit={runStateContext.stateCountLimit}
@@ -340,8 +346,19 @@ export const DagsList = () => {
     stateCountLimit: runStateCountsData?.state_count_limit,
   };
 
-  const columns = createColumns(translate, runStateContext, { multiTeam: multiTeamEnabled });
-  const cardDef = createCardDef(runStateContext);
+  const totalEntries = data?.total_entries ?? 0;
+  const { trackResultClick } = useDagsListSearchExperiment({
+    isSearchLoading: isLoading,
+    onToggle: advancedSearch.onToggle,
+    searchPattern: dagDisplayNamePattern,
+    totalEntries,
+  });
+
+  const columns = createColumns(translate, runStateContext, {
+    multiTeam: multiTeamEnabled,
+    onDagLinkClick: trackResultClick,
+  });
+  const cardDef = createCardDef(runStateContext, trackResultClick);
 
   const handleSortChange = ({ value }: SelectValueChangeDetails<Array<string>>) => {
     setTableURLState({
@@ -352,8 +369,6 @@ export const DagsList = () => {
       })),
     });
   };
-
-  const totalEntries = data?.total_entries ?? 0;
 
   return (
     <DagsLayout>

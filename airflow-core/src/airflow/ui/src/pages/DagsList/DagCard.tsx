@@ -36,12 +36,19 @@ import { Schedule } from "./Schedule";
 
 type Props = {
   readonly dag: DAGWithLatestDagRunsResponse;
+  readonly onTitleClick?: () => void;
   readonly runStateCounts: Record<string, number> | undefined;
   readonly runStateCountsLoading: boolean;
   readonly stateCountLimit: number | undefined;
 };
 
-export const DagCard = ({ dag, runStateCounts, runStateCountsLoading, stateCountLimit }: Props) => {
+export const DagCard = ({
+  dag,
+  onTitleClick,
+  runStateCounts,
+  runStateCountsLoading,
+  stateCountLimit,
+}: Props) => {
   const { t: translate } = useTranslation(["common", "dag"]);
   const [latestRun] = dag.latest_dag_runs;
   const multiTeamEnabled = Boolean(useConfig("multi_team"));
@@ -63,7 +70,13 @@ export const DagCard = ({ dag, runStateCounts, runStateCountsLoading, stateCount
       <Flex alignItems="center" bg="bg.muted" justifyContent="space-between" px={3} py={1}>
         <HStack>
           <Tooltip content={dag.description} disabled={!Boolean(dag.description)}>
-            <RouterLink color="fg.info" data-testid="dag-id" fontWeight="bold" to={`/dags/${dag.dag_id}`}>
+            <RouterLink
+              color="fg.info"
+              data-testid="dag-id"
+              fontWeight="bold"
+              onClick={onTitleClick}
+              to={`/dags/${dag.dag_id}`}
+            >
               {dag.dag_display_name}
             </RouterLink>
           </Tooltip>

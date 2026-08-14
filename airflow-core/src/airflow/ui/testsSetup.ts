@@ -16,10 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useDecide, useOptimizelyUserContext } from "@optimizely/react-sdk";
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import type { HttpHandler } from "msw";
 import { setupServer, type SetupServer } from "msw/node";
+import type { PropsWithChildren } from "react";
 import { beforeEach, beforeAll, afterAll, afterEach, vi } from "vitest";
 
 import { handlers } from "src/mocks/handlers";
@@ -30,6 +32,25 @@ import { handlers } from "src/mocks/handlers";
 vi.mock("src/components/Graph/useGraphLayout", () => ({
   useGraphLayout: vi.fn().mockReturnValue({ data: undefined, isPending: false }),
 }));
+
+// Avoid a real datafile fetch (MSW lets unhandled requests through) and the "must be used
+// within OptimizelyProvider" crash in trees that don't render ExperimentationProvider. Any
+// test that specifically exercises a decision or event tracking should override this mock.
+vi.mock("@optimizely/react-sdk", () => ({
+  createBatchEventProcessor: vi.fn(),
+  createInstance: vi.fn(),
+  createPollingProjectConfigManager: vi.fn(),
+  OptimizelyProvider: ({ children }: PropsWithChildren) => children,
+  useDecide: vi.fn(),
+  useOptimizelyUserContext: vi.fn(),
+}));
+
+// `mockReset: true` (below in vite.config.ts) wipes mockReturnValue between tests, so the
+// defaults above must be re-applied every test rather than set once in the factory.
+beforeEach(() => {
+  vi.mocked(useDecide).mockReturnValue({ decision: null, error: null, isLoading: true });
+  vi.mocked(useOptimizelyUserContext).mockReturnValue({ error: null, isLoading: true, userContext: null });
+});
 
 // Render nothing for the two graph-rendering components so tests that render
 // full pages don't need to stub layout data.
