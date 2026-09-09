@@ -19,12 +19,14 @@
 import { useLocalStorage } from "usehooks-ts";
 
 import { advancedSearchKey } from "src/constants/localStorage";
+import { useSearchDefaultVariant } from "src/hooks/useSearchDefaultVariant";
 
 // Toggle is intentionally NOT mirrored in the URL: shared links default to the
 // fast prefix-search behavior, and recipients can opt back into substring search
 // per searchbar if they want it.
 export const useAdvancedSearch = (key: string) => {
-  const [enabled, setEnabled] = useLocalStorage<boolean>(advancedSearchKey(key), false);
+  const defaultEnabled = useSearchDefaultVariant(key);
+  const [enabled, setEnabled] = useLocalStorage<boolean>(advancedSearchKey(key), defaultEnabled);
 
   return { enabled, onToggle: setEnabled };
 };

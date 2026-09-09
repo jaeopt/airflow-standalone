@@ -30,10 +30,7 @@ import * as ReactJSXRuntime from "react/jsx-runtime";
 
 import type { HTTPExceptionResponse } from "openapi/requests/types.gen";
 import { pruneLegacyDependencyKeys, pruneLegacyTagFilterKeys } from "src/constants/localStorage";
-import { ChakraCustomProvider } from "src/context/ChakraCustomProvider";
-import { ColorModeProvider } from "src/context/colorMode";
-import { ShortcutRegistryProvider } from "src/context/keyboardShortcuts";
-import { TimezoneProvider } from "src/context/timezone";
+import { AppProviders } from "src/context/AppProviders";
 import { router } from "src/router";
 import { getNextHref, getRedirectPath } from "src/utils/links.ts";
 
@@ -103,15 +100,9 @@ createRoot(document.querySelector("#root") as HTMLDivElement).render(
   <StrictMode>
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={client}>
-        <ChakraCustomProvider>
-          <ColorModeProvider>
-            <TimezoneProvider>
-              <ShortcutRegistryProvider>
-                <RouterProvider router={router} />
-              </ShortcutRegistryProvider>
-            </TimezoneProvider>
-          </ColorModeProvider>
-        </ChakraCustomProvider>
+        <AppProviders>
+          <RouterProvider router={router} />
+        </AppProviders>
       </QueryClientProvider>
     </I18nextProvider>
   </StrictMode>,

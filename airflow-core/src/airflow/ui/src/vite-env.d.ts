@@ -21,6 +21,12 @@
 /// <reference types="vite/types/importMeta.d.ts" />
 /// <reference types="vite/client" />
 
+interface ImportMetaEnv {
+  // Optimizely Feature Experimentation SDK key. Unset in most deployments, in which
+  // case no client is created and flagged surfaces use their control behavior.
+  readonly VITE_OPTIMIZELY_SDK_KEY?: string;
+}
+
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
