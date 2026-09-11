@@ -39,6 +39,7 @@ import { RouterLink } from "src/components/ui";
 import { DAGS_LIST_DISPLAY_KEY } from "src/constants/localStorage";
 import { SearchParamsKeys, type SearchParamsKeysType } from "src/constants/searchParams";
 import { useAdvancedSearch } from "src/hooks/useAdvancedSearch";
+import { useDagsListSearchDefault } from "src/hooks/useDagsListSearchDefault";
 import { DagsLayout } from "src/layouts/DagsLayout";
 import { useConfig } from "src/queries/useConfig";
 import { useDagRunStateCounts } from "src/queries/useDagRunStateCounts";
@@ -266,7 +267,7 @@ export const DagsList = () => {
 
   const { pagination, sorting } = tableURLState;
   const dagDisplayNamePattern = searchParams.get(NAME_PATTERN) ?? "";
-  const advancedSearch = useAdvancedSearch("dags");
+  const advancedSearch = useAdvancedSearch("dags", useDagsListSearchDefault());
 
   const [sort] = sorting;
   const orderBy = sort ? `${sort.desc ? "-" : ""}${sort.id}` : "dag_display_name";

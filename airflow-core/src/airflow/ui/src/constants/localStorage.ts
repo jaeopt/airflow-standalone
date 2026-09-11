@@ -51,6 +51,9 @@ export const presetFiltersDefaultKey = (pageName: string) =>
 // SearchBar advanced (substring) toggle, scoped per searchbar via a caller-provided id.
 export const advancedSearchKey = (id: string) => `advanced_search-${id}`;
 
+// Anonymous, per-browser id used only to keep feature-flag bucketing stable across reloads.
+export const OPTIMIZELY_BUCKETING_ID_KEY = "optimizely_bucketing_id";
+
 // One-time cleanup of the pre-consolidation per-Dag dependency toggle keys
 // (`dependencies-<dag_id>`), now superseded by the global SHOW_ALL_DEPENDENCIES_KEY. Without this
 // they linger in every user's localStorage forever. Safe because no current key shares the prefix.

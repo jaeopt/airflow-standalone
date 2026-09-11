@@ -21,6 +21,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { PropsWithChildren } from "react";
 import { MemoryRouter } from "react-router-dom";
 
+import { OptimizelyCustomProvider } from "src/context/optimizely";
 import { TimezoneProvider } from "src/context/timezone";
 
 export const BaseWrapper = ({ children }: PropsWithChildren) => {
@@ -34,7 +35,9 @@ export const BaseWrapper = ({ children }: PropsWithChildren) => {
 
   return (
     <ChakraProvider value={defaultSystem}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <OptimizelyCustomProvider>{children}</OptimizelyCustomProvider>
+      </QueryClientProvider>
     </ChakraProvider>
   );
 };

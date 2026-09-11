@@ -24,7 +24,6 @@ import React, { StrictMode } from "react";
 import * as ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
-import { RouterProvider } from "react-router-dom";
 import * as ReactRouterDOM from "react-router-dom";
 import * as ReactJSXRuntime from "react/jsx-runtime";
 
@@ -33,6 +32,7 @@ import { pruneLegacyDependencyKeys, pruneLegacyTagFilterKeys } from "src/constan
 import { ChakraCustomProvider } from "src/context/ChakraCustomProvider";
 import { ColorModeProvider } from "src/context/colorMode";
 import { ShortcutRegistryProvider } from "src/context/keyboardShortcuts";
+import { OptimizelyRouterProvider } from "src/context/optimizely";
 import { TimezoneProvider } from "src/context/timezone";
 import { router } from "src/router";
 import { getNextHref, getRedirectPath } from "src/utils/links.ts";
@@ -107,7 +107,7 @@ createRoot(document.querySelector("#root") as HTMLDivElement).render(
           <ColorModeProvider>
             <TimezoneProvider>
               <ShortcutRegistryProvider>
-                <RouterProvider router={router} />
+                <OptimizelyRouterProvider router={router} />
               </ShortcutRegistryProvider>
             </TimezoneProvider>
           </ColorModeProvider>

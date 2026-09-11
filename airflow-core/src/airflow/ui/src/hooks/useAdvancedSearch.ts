@@ -23,8 +23,11 @@ import { advancedSearchKey } from "src/constants/localStorage";
 // Toggle is intentionally NOT mirrored in the URL: shared links default to the
 // fast prefix-search behavior, and recipients can opt back into substring search
 // per searchbar if they want it.
-export const useAdvancedSearch = (key: string) => {
-  const [enabled, setEnabled] = useLocalStorage<boolean>(advancedSearchKey(key), false);
+// ``defaultEnabled`` only seeds the initial value: once a user toggles the control their
+// stored preference wins, so a caller driving this from an experiment cannot override a
+// choice the user already made.
+export const useAdvancedSearch = (key: string, defaultEnabled = false) => {
+  const [enabled, setEnabled] = useLocalStorage<boolean>(advancedSearchKey(key), defaultEnabled);
 
   return { enabled, onToggle: setEnabled };
 };
